@@ -1,0 +1,430 @@
+/* Animatable angle for the rotating gradient border (button 3) */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #000;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 300px));
+  gap: 46px 42px;
+}
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: minmax(0, 300px);
+  }
+}
+
+/* ---------- Shared button base ---------- */
+.gbtn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+  height: 64px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font:
+    500 20px/1 "Inter",
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.3s,
+    background-position 0.6s,
+    filter 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+.gbtn:hover {
+  transform: translateY(-3px);
+}
+.gbtn:active {
+  transform: translateY(0) scale(0.97);
+}
+.gbtn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.gbtn .label,
+.gbtn i {
+  position: relative;
+  z-index: 2;
+}
+.gbtn i {
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Paper plane takes off on hover */
+.gbtn:hover i {
+  transform: translate(5px, -5px) rotate(-8deg) scale(1.1);
+}
+
+/* Mouse-following light spot (position set from JS) */
+.gbtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    120px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.28),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.gbtn:hover::before {
+  opacity: 1;
+}
+
+/* Light sheen sweep on hover */
+.gbtn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 40%;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.28),
+    transparent
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.gbtn:hover::after {
+  left: 130%;
+  transition: left 0.8s ease;
+}
+
+/* Click ripple (created by JS) */
+.ripple {
+  position: absolute;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  transform: scale(0);
+  animation: ripple 0.65s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to {
+    transform: scale(18);
+    opacity: 0;
+  }
+}
+
+/* Click: plane flies out and comes back */
+.gbtn.sent i {
+  animation: fly 0.9s cubic-bezier(0.5, 0, 0.3, 1);
+}
+@keyframes fly {
+  40% {
+    transform: translate(60px, -40px) scale(0.4);
+    opacity: 0;
+  }
+  41% {
+    transform: translate(-60px, 40px) scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Gradient icon helper */
+.icon-grad i {
+  background: var(--ig);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Breathing glow for filled buttons */
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: var(--glow-a);
+  }
+  50% {
+    box-shadow: var(--glow-b);
+  }
+}
+
+/* ---------- 1. Blue → purple gradient ---------- */
+.b1 {
+  --glow-a:
+    0 0 22px rgba(70, 160, 255, 0.45), 0 0 50px rgba(120, 80, 255, 0.25);
+  --glow-b: 0 0 32px rgba(70, 160, 255, 0.65), 0 0 70px rgba(120, 80, 255, 0.4);
+  background: linear-gradient(90deg, #3ec6ff, #7a4dff, #3ec6ff);
+  background-size: 200% 100%;
+  animation: breathe 3s ease-in-out infinite;
+}
+.b1:hover {
+  background-position: 100% 0;
+}
+
+/* ---------- 2. Peach → sky pastel ---------- */
+.b2 {
+  color: #14142b;
+  background: linear-gradient(90deg, #ffc3a8, #d8c2ee 50%, #7db5ff);
+  background-size: 200% 100%;
+  box-shadow:
+    0 0 26px rgba(255, 190, 170, 0.35),
+    0 0 36px rgba(120, 170, 255, 0.3);
+}
+.b2:hover {
+  background-position: 100% 0;
+  box-shadow:
+    0 0 34px rgba(255, 190, 170, 0.5),
+    0 0 50px rgba(120, 170, 255, 0.45);
+}
+
+/* ---------- 3. Rotating rainbow outline ---------- */
+.b3 {
+  --ig: linear-gradient(135deg, #ffd24d, #ff4f9a);
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#05060c, #05060c) padding-box,
+    conic-gradient(from var(--angle), #4de0e0, #ff5fa0, #ffb85c, #4de0e0)
+      border-box;
+  animation: spin 4s linear infinite;
+  box-shadow: 0 0 20px rgba(255, 100, 160, 0.18);
+}
+@keyframes spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* ---------- 4. Navy outline, soft blue ---------- */
+.b4 {
+  --ig: linear-gradient(135deg, #8fd0ff, #5b8dff);
+  background: linear-gradient(180deg, #0b1535, #070b1c);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(80, 130, 255, 0.55),
+    0 0 18px rgba(70, 120, 255, 0.25);
+}
+.b4:hover {
+  box-shadow:
+    inset 0 0 0 1.5px rgba(120, 170, 255, 0.9),
+    0 0 30px rgba(70, 120, 255, 0.5);
+}
+
+/* ---------- 5. Light frosted white-blue ---------- */
+.b5 {
+  color: #14142b;
+  background: linear-gradient(180deg, #f1f5ff, #d9e4ff);
+  box-shadow: 0 0 24px rgba(180, 205, 255, 0.5);
+}
+.b5 i {
+  color: #2f5bff;
+}
+.b5:hover {
+  box-shadow: 0 0 38px rgba(180, 205, 255, 0.85);
+}
+
+/* ---------- 6. Dashed purple (marching dashes via SVG) ---------- */
+.b6 {
+  background: #07060f;
+  color: #fff;
+  box-shadow: 0 0 16px rgba(120, 80, 255, 0.15);
+}
+.b6 i {
+  color: #7a5bff;
+}
+.b6 svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+.b6 rect {
+  x: 1px;
+  y: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  rx: 31px;
+  ry: 31px;
+  fill: none;
+  stroke: #7a5bff;
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+  animation: march 1.2s linear infinite;
+}
+.b6:hover rect {
+  animation-duration: 0.5s;
+  stroke: #a18bff;
+}
+@keyframes march {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+
+/* ---------- 7. Teal glass ---------- */
+.b7 {
+  --ig: linear-gradient(135deg, #8cf0ff, #28b4ff);
+  background: linear-gradient(135deg, #0b3a55 0%, #06101f 70%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(60, 190, 255, 0.6),
+    0 0 24px rgba(40, 170, 255, 0.35);
+}
+.b7 i {
+  color: #4fd3ff;
+}
+.b7:hover {
+  box-shadow:
+    inset 0 0 0 1.5px rgba(120, 220, 255, 0.95),
+    0 0 38px rgba(40, 190, 255, 0.6);
+}
+
+/* ---------- 8. Blue → violet outline ---------- */
+.b8 {
+  --ig: linear-gradient(135deg, #5b8dff, #9b4dff);
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#04050d, #04050d) padding-box,
+    linear-gradient(90deg, #3b82f6, #8b5cf6) border-box;
+  box-shadow: 0 0 16px rgba(110, 90, 255, 0.22);
+}
+.b8:hover {
+  box-shadow: 0 0 32px rgba(110, 90, 255, 0.55);
+}
+
+/* ---------- 9. Dark navy, faint border ---------- */
+.b9 {
+  --ig: linear-gradient(135deg, #53d6ff, #3a78ff);
+  background: linear-gradient(180deg, #0c1a3d, #060b1b);
+  box-shadow:
+    inset 0 0 0 1px rgba(80, 150, 255, 0.28),
+    0 0 22px rgba(60, 160, 255, 0.22);
+}
+.b9 i {
+  color: #46c6ff;
+}
+.b9:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(100, 180, 255, 0.8),
+    0 0 34px rgba(60, 160, 255, 0.5);
+}
+
+/* ---------- 10. Solid purple ---------- */
+.b10 {
+  --glow-a: 0 0 22px rgba(120, 80, 255, 0.5), 0 0 48px rgba(120, 80, 255, 0.25);
+  --glow-b:
+    0 0 34px rgba(140, 100, 255, 0.75), 0 0 70px rgba(120, 80, 255, 0.4);
+  background: linear-gradient(135deg, #8a5cff, #5a4bff);
+  animation: breathe 3s ease-in-out infinite 0.6s;
+}
+
+/* ---------- 11. Frosted glass, white edge ---------- */
+.b11 {
+  --ig: linear-gradient(135deg, #ffd0c0, #a9b8ff);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.12)
+  );
+  backdrop-filter: blur(10px);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.55),
+    0 0 22px rgba(255, 255, 255, 0.12);
+}
+.b11:hover {
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.95),
+    0 0 34px rgba(255, 255, 255, 0.28);
+}
+
+/* ---------- 12. Violet outline ---------- */
+.b12 {
+  --ig: linear-gradient(135deg, #8b5cff, #4f46ff);
+  background: #070512;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(140, 90, 255, 0.8),
+    0 0 20px rgba(140, 90, 255, 0.3);
+}
+.b12:hover {
+  box-shadow:
+    inset 0 0 0 1.5px #b79bff,
+    0 0 36px rgba(140, 90, 255, 0.65);
+}
+
+/* ---------- 13. Blue → magenta gradient ---------- */
+.b13 {
+  --glow-a:
+    0 0 22px rgba(80, 160, 255, 0.45), 0 0 46px rgba(230, 90, 255, 0.28);
+  --glow-b:
+    0 0 34px rgba(80, 160, 255, 0.65), 0 0 70px rgba(230, 90, 255, 0.45);
+  background: linear-gradient(90deg, #3ec6ff, #7a63ff 50%, #f05cf0, #3ec6ff);
+  background-size: 200% 100%;
+  animation: breathe 3s ease-in-out infinite 1.2s;
+}
+.b13:hover {
+  background-position: 100% 0;
+}
+
+/* ---------- 14. Amber outline ---------- */
+.b14 {
+  --ig: linear-gradient(135deg, #ffcf80, #d9904a);
+  background: #0a0703;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(240, 170, 80, 0.8),
+    0 0 20px rgba(240, 170, 80, 0.3);
+}
+.b14:hover {
+  box-shadow:
+    inset 0 0 0 1.5px #ffd08a,
+    0 0 38px rgba(240, 170, 80, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gbtn,
+  .gbtn *,
+  .gbtn::before,
+  .gbtn::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
